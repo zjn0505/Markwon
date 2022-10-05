@@ -13,7 +13,7 @@ android {
 }
 
 dependencies {
-    implementation project(':markwon-core')
+    implementation "io.noties.markwon:core:4.6.2"
 
     // @since 4.5.1 declare `coil-base` as api dependency (would require users
     //  to have explicit coil dependency)
