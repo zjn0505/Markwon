@@ -1,11 +1,11 @@
 buildscript {
-    ext.kotlin_version = '1.4.10'
+    ext.kotlin_version = '1.6.10'
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.2'
+        classpath 'com.android.tools.build:gradle:7.2.2'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.28.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
@@ -49,16 +49,16 @@ if (hasProperty('local')) {
 ext {
 
     config = [
-            'build-tools'    : '29.0.3',
-            'compile-sdk'    : 29,
-            'target-sdk'     : 29,
-            'min-sdk'        : 16,
+            'build-tools'    : '30.0.3',
+            'compile-sdk'    : 31,
+            'target-sdk'     : 31,
+            'min-sdk'        : 21,
             'push-aar-gradle': 'https://raw.githubusercontent.com/noties/gradle-mvn-push/master/gradle-mvn-push-aar.gradle'
     ]
 
     final def commonMarkVersion = '0.13.0'
     final def daggerVersion = '2.10'
-    final def coilVersion = '0.13.0'
+    final def coilVersion = '2.2.2'
 
     // please note that `pl.droidsonroids.gif:android-gif-drawable:1.2.15` is used due to the minimum
     // api level mismatch that Markwon supports (16) and later versions of AndroidGifDrawable (17).
@@ -66,7 +66,7 @@ ext {
     // must specify version explicitly (until library's API changes...)
 
     deps = [
-            'x-annotations'           : 'androidx.annotation:annotation:1.1.0',
+            'x-annotations'           : 'androidx.annotation:annotation:1.5.0',
             'x-recycler-view'         : 'androidx.recyclerview:recyclerview:1.0.0',
             'x-core'                  : 'androidx.core:core:1.0.2',
             'x-appcompat'             : 'androidx.appcompat:appcompat:1.1.0',

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
 
 android {
 
@@ -8,8 +9,6 @@ android {
     defaultConfig {
         minSdkVersion config['min-sdk']
         targetSdkVersion config['target-sdk']
-        versionCode 1
-        versionName version
     }
 }
 
@@ -20,6 +19,20 @@ dependencies {
     //  to have explicit coil dependency)
     api deps['coil-base']
     compileOnly deps['coil']
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                groupId = 'dev.jeziellago.markwon'
+                artifactId = 'image-coil'
+                version = '0.1.0'
+            }
+        }
+    }
 }
 
 registerArtifact(this)
