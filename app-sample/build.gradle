@@ -128,7 +128,9 @@ dependencies {
     implementation project(':markwon-editor')
     implementation project(':markwon-ext-latex')
     implementation project(':markwon-ext-strikethrough')
-    implementation project(':markwon-ext-tables')
+    implementation(project(':markwon-ext-tables')) {
+        exclude group: "io.noties.markwon", module: 'core'
+    }
     implementation project(':markwon-ext-tasklist')
     implementation project(':markwon-html')
     implementation project(':markwon-image')

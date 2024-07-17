@@ -1,9 +1,12 @@
 package io.noties.markwon.ext.tables;
 
+import static android.view.View.NO_ID;
+
 import android.content.Context;
 import android.text.Spanned;
 import android.widget.TextView;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 
 import org.commonmark.ext.gfm.tables.TableBlock;
@@ -27,6 +30,13 @@ import io.noties.markwon.SpannableBuilder;
  * @since 3.0.0
  */
 public class TablePlugin extends AbstractMarkwonPlugin {
+
+    private int heightResId = NO_ID;
+
+    public void setTag(@NonNull ArrayList<Integer> rowHeights, @IdRes int heightResId) {
+        this.heightResId = heightResId;
+        visitor.setRowHeights(rowHeights);
+    }
 
     public interface ThemeConfigure {
         void configureTheme(@NonNull TableTheme.Builder builder);
@@ -93,12 +103,14 @@ public class TablePlugin extends AbstractMarkwonPlugin {
 
     @Override
     public void afterSetText(@NonNull TextView textView) {
-        TableRowsScheduler.schedule(textView);
+        TableRowsScheduler.schedule(textView, heightResId);
     }
 
     private static class TableVisitor {
 
         private final TableTheme tableTheme;
+
+        private ArrayList<Integer> rowHeights;
 
         private List<TableRowSpan.Cell> pendingTableRow;
         private boolean tableRowIsHeader;
@@ -106,6 +118,13 @@ public class TablePlugin extends AbstractMarkwonPlugin {
 
         TableVisitor(@NonNull TableTheme tableTheme) {
             this.tableTheme = tableTheme;
+        }
+
+        /**
+         * Set row heights if we already know that.
+         */
+        void setRowHeights(ArrayList<Integer> rowHeights) {
+            this.rowHeights = rowHeights;
         }
 
         void clear() {
@@ -202,12 +221,19 @@ public class TablePlugin extends AbstractMarkwonPlugin {
                 // we need this because if table is at the end of the text, then it will be
                 // trimmed from the final result
                 builder.append('\u00a0');
+                int height = 0;
+                if (rowHeights != null && rowHeights.size() >= tableRows + 1) {
+                    height = rowHeights.get(tableRows);
+                }
 
                 final Object span = new TableRowSpan(
                         tableTheme,
                         pendingTableRow,
                         tableRowIsHeader,
-                        tableRows % 2 == 1);
+                        tableRows % 2 == 1,
+                        tableRows,
+                        height
+                );
 
                 tableRows = tableRowIsHeader
                         ? 0

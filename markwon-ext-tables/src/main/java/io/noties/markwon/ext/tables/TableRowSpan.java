@@ -41,7 +41,8 @@ public class TableRowSpan extends ReplacementSpan {
     }
 
     public interface Invalidator {
-        void invalidate();
+        void invalidate(int rowNumber, int height);
+        void cancel();
     }
 
     public static class Cell {
@@ -86,18 +87,24 @@ public class TableRowSpan extends ReplacementSpan {
     private int width;
     private int height;
     private Invalidator invalidator;
+    private int rowNumber;
 
     public TableRowSpan(
             @NonNull TableTheme theme,
             @NonNull List<Cell> cells,
             boolean header,
-            boolean odd) {
+            boolean odd,
+            int rowNumber,
+            int height
+    ) {
         this.theme = theme;
         this.cells = cells;
         this.layouts = new ArrayList<>(cells.size());
         this.textPaint = new TextPaint();
         this.header = header;
         this.odd = odd;
+        this.rowNumber= rowNumber;
+        this.height = height;
     }
 
     @Override
@@ -111,7 +118,7 @@ public class TableRowSpan extends ReplacementSpan {
         // it's our absolute requirement to have width of the canvas here... because, well, it changes
         // the way we draw text. So, if we do not know the width of canvas we cannot correctly measure our text
 
-        if (layouts.size() > 0) {
+        if (layouts.size() > 0 || height > 0) {
 
             if (fm != null) {
 
@@ -124,12 +131,14 @@ public class TableRowSpan extends ReplacementSpan {
                 }
 
                 // we store actual height
-                height = max;
+                if (max != 0) {
+                    height = max;
+                }
 
                 // but apply height with padding
                 final int padding = theme.tableCellPadding() * 2;
 
-                fm.ascent = -(max + padding);
+                fm.ascent = -(height + padding);
                 fm.descent = 0;
 
                 fm.top = fm.ascent;
@@ -293,7 +302,7 @@ public class TableRowSpan extends ReplacementSpan {
 
         if (height != maxHeight) {
             if (invalidator != null) {
-                invalidator.invalidate();
+                invalidator.invalidate(rowNumber, maxHeight);
             }
         }
     }
@@ -326,7 +335,7 @@ public class TableRowSpan extends ReplacementSpan {
                 if (invalidator != null) {
                     layouts.remove(index);
                     makeLayout(index, width, cell);
-                    invalidator.invalidate();
+                    invalidator.invalidate(-1, 0);
                 }
             }
         };
@@ -430,6 +439,9 @@ public class TableRowSpan extends ReplacementSpan {
     }
 
     public void invalidator(@Nullable Invalidator invalidator) {
+        if (this.invalidator != null && invalidator == null) {
+            this.invalidator.cancel();
+        }
         this.invalidator = invalidator;
     }
 

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
 
 android {
 
@@ -12,11 +13,24 @@ android {
 }
 
 dependencies {
-
-    api project(':markwon-core')
+    implementation "io.noties.markwon:core:4.6.2"
 
     deps.with {
         api it['commonmark-table']
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                groupId = 'xyz.jienan.markwon'
+                artifactId = 'ext-table'
+                version = '0.1.0'
+            }
+        }
     }
 }
 

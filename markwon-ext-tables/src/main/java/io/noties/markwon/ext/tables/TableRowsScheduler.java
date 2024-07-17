@@ -1,16 +1,21 @@
 package io.noties.markwon.ext.tables;
 
+import static android.view.View.NO_ID;
+
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+
 abstract class TableRowsScheduler {
 
-    static void schedule(@NonNull final TextView view) {
+    static void schedule(@NonNull final TextView view, @IdRes int heightResId) {
         final Object[] spans = extract(view);
         if (spans != null
                 && spans.length > 0) {
@@ -46,10 +51,31 @@ abstract class TableRowsScheduler {
                 };
 
                 @Override
-                public void invalidate() {
+                public void invalidate(int rowNumber, int height) {
                     // @since 4.1.0 post invalidation (combine multiple calls)
+                    if (rowNumber != -1 && heightResId != NO_ID) {
+                        Object heights = view.getTag(heightResId);
+                        if (heights == null || heights instanceof ArrayList == false) {
+                            heights = new ArrayList<Integer>();
+                            ((ArrayList) heights).add(height);
+                        } else {
+                            int size = ((ArrayList<Integer>) heights).size();
+                            if (rowNumber + 1 <= size) {
+                                ((ArrayList) heights).set(rowNumber, height);
+                            } else {
+                                ((ArrayList) heights).add(height);
+                            }
+                        }
+                        view.setTag(heightResId, heights);
+
+                    }
                     view.removeCallbacks(runnable);
                     view.post(runnable);
+                }
+
+                @Override
+                public void cancel() {
+                    view.removeCallbacks(runnable);
                 }
             };
 
